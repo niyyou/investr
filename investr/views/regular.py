@@ -61,4 +61,4 @@ def show_regular(*args, **kwargs):
     )
     st.bar_chart(df[["invested", "gain"]])
 
-    st.table(df)
+    st.dataframe(df, width=1500)
