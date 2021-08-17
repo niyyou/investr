@@ -2,8 +2,7 @@ import streamlit as st
 import pandas as pd
 import altair as alt
 
-from views.register import declare_view
-import numpy as np
+from investr.views.register import declare_view
 from box import Box
 
 

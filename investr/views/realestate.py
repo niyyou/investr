@@ -2,7 +2,8 @@ import streamlit as st
 import pandas as pd
 import altair as alt
 
-from views.register import declare_view
+from investr.views.register import declare_view
+from investr.common.mortgage import get_loan_summary
 import numpy as np
 from box import Box
 
@@ -28,49 +29,6 @@ from box import Box
 #     if groupby_period == 12:
 #         grouped_df = grouped_df.droplevel(axis=0, level=1)
 #     return grouped_df
-
-
-def get_loan_summary(
-    n_years,
-    loan_total,
-    interest_rate,
-    monthly_payment,
-    annual_extra_repayment_rate,
-    **kwargs,
-):
-    loan_balance = loan_total
-    data = []
-    for y in range(1, int(n_years) + 1):
-        annual_interests = loan_balance * interest_rate
-        monthly_interests = annual_interests / 12
-        monthly_principal = monthly_payment - monthly_interests
-        annual_principal = monthly_principal * 12
-        loan_balance -= annual_principal
-
-        annual_extra_repayment = loan_total * annual_extra_repayment_rate
-        loan_balance -= annual_extra_repayment
-        data.append(
-            [
-                y,
-                monthly_interests,
-                monthly_principal,
-                annual_interests,
-                annual_principal,
-                annual_extra_repayment,
-                loan_balance,
-            ]
-        )
-    cols = [
-        "year",
-        "monthly_interests",
-        "monthly_principal",
-        "annual_interests",
-        "annual_principal",
-        "extra repayment",
-        "loan balance",
-    ]
-    df = pd.DataFrame(data, columns=cols).set_index("year")
-    return df
 
 
 @st.cache

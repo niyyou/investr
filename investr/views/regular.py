@@ -1,8 +1,7 @@
-import numpy as np
 import pandas as pd
 import streamlit as st
 
-from views.register import declare_view
+from investr.views.register import declare_view
 from box import Box
 
 

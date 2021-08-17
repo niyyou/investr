@@ -1,6 +1,6 @@
 import streamlit as st
 from streamlit.caching import CachedStFunctionWarning
-from views.register import declare_view
+from investr.views.register import declare_view
 import numpy as np
 from box import Box
 
