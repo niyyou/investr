@@ -362,12 +362,13 @@ def show_combined_mortages(*args, **kwargs):
     st.altair_chart(
         alt.Chart(df_summary_melt)
         .mark_bar(cornerRadiusTopLeft=0, cornerRadiusTopRight=0)
+        .transform_calculate(amount="datum['monthly amount'] + ' €'")
         .encode(
             x="year:N",
             y="monthly amount:Q",
             color="repayment type:N",
             opacity=alt.value(0.9),
-            tooltip=["repayment type", "monthly amount"],
+            tooltip=["repayment type", "amount:N"],
         )
         .properties(width=800, height=400)
         .configure_axis(grid=False)
