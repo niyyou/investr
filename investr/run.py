@@ -2,9 +2,9 @@ import os
 import streamlit as st
 
 st.set_page_config(
-    page_title="Stocks investment simulation",
+    page_title="Household Investment Simulator",
     layout="wide",
-    page_icon="🎵",
+    page_icon="🏠",
 )
 
 
