@@ -1,8 +1,8 @@
 import pandas as pd
 import streamlit as st
 
-from investr.views.register import declare_view
 from box import Box
+from investr.views.register import declare_view
 
 
 def make_sidebar(sidebar):

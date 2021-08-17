@@ -1,8 +1,7 @@
 import streamlit as st
-from streamlit.caching import CachedStFunctionWarning
-from investr.views.register import declare_view
-import numpy as np
 from box import Box
+from investr.views.register import declare_view
+from streamlit.caching import CachedStFunctionWarning
 
 
 def make_sidebar(params):

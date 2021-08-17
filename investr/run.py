@@ -8,7 +8,7 @@ st.set_page_config(
 )
 
 
-from views import register as views_register
+from investr.views.register import register as views_register
 
 
 def cli():

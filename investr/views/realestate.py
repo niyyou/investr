@@ -2,103 +2,9 @@ import streamlit as st
 import pandas as pd
 import altair as alt
 
+from box import Box
 from investr.views.register import declare_view
 from investr.common.mortgage import get_loan_summary
-import numpy as np
-from box import Box
-
-
-# monthly_infos = ["interests", "principal", "extra repayment", "loan balance"]
-
-
-# @st.cache
-# def aggregate_summary(df_summary, period_names, groupby_period):
-#     global monthly_infos
-#     grouped_df = df_summary.groupby(
-#         [
-#             df_summary.index.get_level_values(0),
-#             (df_summary.index.get_level_values(1) - 1) // groupby_period,
-#         ]
-#     )
-#     agg_func = zip(monthly_infos, ["sum", "sum", "sum", "min"])
-#     grouped_df = grouped_df.agg(dict(agg_func))
-#     grouped_df = grouped_df.reset_index()
-#     grouped_df.month = grouped_df.month + 1
-#     grouped_df = grouped_df.set_index(["year", "month"])
-#     grouped_df.index.rename(("year", period_names[groupby_period]), inplace=True)
-#     if groupby_period == 12:
-#         grouped_df = grouped_df.droplevel(axis=0, level=1)
-#     return grouped_df
-
-
-@st.cache
-def get_roi(
-    yearly_agg_summary,
-    property_value,
-    first_fee,
-    yearly_cold_rent,
-    n_years,
-    rent_increase_rate,
-    yearly_maintenance_cost,
-    yearly_property_tax,
-    surface,
-):
-    interests = 0
-    networth = -first_fee
-    rent = 0
-    property_share = 0
-    extra_costs = 0
-    property_value_ = property_value
-
-    info_dict = {
-        "year": [],
-        "amount invested": [],
-        "property share": [],
-        "interests": [],
-        "rent": [],
-        "extra costs": [],
-        "networth": [],
-        "property": [],
-        "m2 price": [],
-    }
-
-    property_appreciation_rate = (
-        st.number_input(
-            "Property annual appreciation rate %", value=0, format="%d", step=1
-        )
-        / 100
-    )
-
-    for y in range(1, n_years + 1):
-        info_dict["year"].append(y)
-
-        interests += yearly_agg_summary.loc[y, "interests"]
-        info_dict["interests"].append(-interests)
-
-        initial_share_value = property_value - yearly_agg_summary.loc[y, "loan balance"]
-        new_share_value = (
-            initial_share_value * (1 + property_appreciation_rate) ** y
-        )  # exponential
-        # new_share_value = initial_share_value * (1 + property_appreciation_rate * y)  # linear
-        diff_share_value = new_share_value - initial_share_value
-        info_dict["property share"].append(diff_share_value)
-        info_dict["amount invested"].append(initial_share_value)
-
-        rent += yearly_cold_rent * (1 + rent_increase_rate) ** (y - 1)
-        info_dict["rent"].append(rent)
-
-        extra_costs += yearly_maintenance_cost + yearly_property_tax
-        info_dict["extra costs"].append(-extra_costs)
-
-        networth = -first_fee + diff_share_value + rent - interests - extra_costs
-        info_dict["networth"].append(networth)
-
-        property_value_ += property_value * property_appreciation_rate  # linear
-        # property_value_ *= (1 + property_appreciation_rate)**y  # exponential
-        info_dict["property"].append(property_value_)
-        info_dict["m2 price"].append(round(property_value_ / surface, 2))
-
-    return pd.DataFrame(info_dict)
 
 
 def make_sidebar(sidebar):
@@ -242,8 +148,6 @@ def show_realestate(*args, **kwargs):
                 """
             )
 
-    # period_names = {1: "month", 3: "trimester", 6: "semester", 12: "yearly"}
-
     with st.expander("Show table", expanded=False):
         st.table(df_summary.style.format("{:,.0f}"))
 
@@ -268,26 +172,6 @@ def show_realestate(*args, **kwargs):
         use_container_width=True,
     )
 
-    # trimester_agg_summary = (
-    #     aggregate_summary(df_summary, period_names, 3)
-    #     .reset_index()[["year", "trimester", "interests", "principal"]]
-    #     .melt(["year", "trimester"], var_name="repayment type", value_name="amount")
-    # )
-
-    # st.altair_chart(
-    #     alt.Chart(trimester_agg_summary)
-    #     .transform_calculate(trimester="(datum.year - 1) * 4 + datum.trimester")
-    #     .mark_bar(cornerRadiusTopLeft=10, cornerRadiusTopRight=10)
-    #     .encode(
-    #         x="trimester:N",
-    #         y="amount:Q",
-    #         color="repayment type:N",
-    #         opacity=alt.value(0.9),
-    #     )
-    #     .properties(width=800, height=200)
-    #     .configure_axis(grid=False)
-    #     .configure_view(strokeWidth=0)
-    # )
     st.stop()
 
     st.write("---")
@@ -330,6 +214,13 @@ def show_realestate(*args, **kwargs):
 
     yearly_agg_summary = aggregate_summary(df_summary, period_names, 12)
 
+    property_appreciation_rate = (
+        st.number_input(
+            "Property annual appreciation rate %", value=0, format="%d", step=1
+        )
+        / 100
+    )
+
     df = get_roi(
         yearly_agg_summary,
         property_value,
@@ -340,6 +231,7 @@ def show_realestate(*args, **kwargs):
         yearly_maintenance_cost,
         yearly_property_tax,
         surface,
+        property_appreciation_rate,
     )
 
     # TODO: This part needs refactoring

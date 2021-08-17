@@ -5,7 +5,9 @@ register = {}
 
 def declare_view(name):
     def outer_wrapper(func):
-        assert name not in register, "The view name exists already."
+        assert (
+            name not in register
+        ), f"The view name exists already. Register: {register}"
         register[name] = func
 
         @wraps
