@@ -52,6 +52,7 @@ def show_regular(*args, **kwargs):
     df = pd.DataFrame(data, columns=["year", "networth", "invested"]).set_index("year")
 
     df["gain"] = df.networth - df.invested
+    df["RoI"] = df.gain / df.networth
 
     # st.dataframe(df)
 
